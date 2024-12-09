@@ -6,7 +6,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut left_list = Vec::new();
     let mut right_list = Vec::new();
     for line in input.split('\n') {
-        if line.len() == 0 {
+        if line.is_empty() {
             continue;
         }
         let mut splited = line.split_whitespace();
@@ -32,7 +32,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         left_list
             .iter()
             .zip(right_list.iter())
-            .map(|(x, y)| (x - y).abs() as u32)
+            .map(|(x, y)| (x - y).unsigned_abs())
             .sum::<u32>(),
     )
 }
@@ -41,7 +41,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut left_list: HashMap<u32, usize> = HashMap::new();
     let mut right_list: HashMap<u32, usize> = HashMap::new();
     for line in input.split('\n') {
-        if line.len() == 0 {
+        if line.is_empty() {
             continue;
         }
         let mut splited = line.split_whitespace();

@@ -1,11 +1,13 @@
+use std::cmp::Ordering;
+
 advent_of_code::solution!(2);
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let reports = input.split("\n");
+    let reports = input.split('\n');
     Some(
         reports
-            .map(|x| is_safe(x))
-            .filter(|x| *x == true)
+            .map(is_safe)
+            .filter(|x| *x)
             .count()
             .try_into()
             .unwrap(),
@@ -13,11 +15,11 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let reports = input.split("\n");
+    let reports = input.split('\n');
     Some(
         reports
-            .map(|x| is_any_permutation_safe(x))
-            .filter(|x| *x == true)
+            .map(is_any_permutation_safe)
+            .filter(|x| *x)
             .count()
             .try_into()
             .unwrap(),
@@ -25,7 +27,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 }
 
 pub fn is_any_permutation_safe(input: &str) -> bool {
-    if input.len() == 0 {
+    if input.is_empty() {
         return false;
     }
     if is_safe(input) {
@@ -48,11 +50,11 @@ pub fn is_any_permutation_safe(input: &str) -> bool {
             return true;
         }
     }
-    return false;
+    false
 }
 
 pub fn is_safe(reports: &str) -> bool {
-    if reports.len() == 0 {
+    if reports.is_empty() {
         return false;
     }
     let mut safe = true;
@@ -67,13 +69,17 @@ pub fn is_safe(reports: &str) -> bool {
     let mut first_check = true;
 
     for val in v_reports {
-        if first_check == true {
-            if val > last_val {
-                increasing = true;
-                first_check = false;
-            } else if val < last_val {
-                increasing = false;
-                first_check = false;
+        if first_check {
+            match val.cmp(&last_val) {
+                Ordering::Greater => {
+                    increasing = true;
+                    first_check = true;
+                }
+                Ordering::Less => {
+                    increasing = false;
+                    first_check = false;
+                }
+                Ordering::Equal => {}
             }
         }
         if !level_is_valid(last_val, val, increasing) {
@@ -94,7 +100,7 @@ pub fn level_is_valid(last_level: u32, current_level: u32, increasing: bool) -> 
         return false;
     }
     let delta = (current_level as i32 - last_level as i32).abs();
-    return 1 <= delta && delta <= 3;
+    (1..=3).contains(&delta)
 }
 
 #[cfg(test)]
