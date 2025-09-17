@@ -1,5 +1,6 @@
 advent_of_code::solution!(6);
 
+use rayon::prelude::*;
 use std::collections::HashSet;
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
@@ -153,19 +154,26 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let puzzle = parse_input(input);
-    let mut accum: u32 = 0;
-    for (line_idx, line) in puzzle.map.iter().enumerate() {
-        for (col_idx, c) in line.iter().enumerate() {
-            if *c != '.' {
-                continue;
-            }
-            let mut new_puzzle = puzzle.clone();
-            new_puzzle.map[line_idx][col_idx] = '#';
-            if !can_escapce(new_puzzle) {
-                accum += 1;
-            }
-        }
-    }
+    let accum: u32 = puzzle
+        .map
+        .par_iter()
+        .enumerate()
+        .map(|(line_idx, line)| {
+            line.iter()
+                .enumerate()
+                .filter(|(_, &c)| c == '.')
+                .map(|(col_idx, _)| {
+                    let mut new_puzzle = puzzle.clone();
+                    new_puzzle.map[line_idx][col_idx] = '#';
+                    if !can_escapce(new_puzzle) {
+                        1
+                    } else {
+                        0
+                    }
+                })
+                .sum::<u32>()
+        })
+        .sum();
     Some(accum)
 }
 
